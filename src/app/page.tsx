@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Moon, Sun, Github, Linkedin, Twitter, Mail, Download, Menu, X, Code, ArrowDown } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { Github, Linkedin, Twitter, Mail, Download, Menu, X, Code, ArrowDown } from 'lucide-react'
 import Image from 'next/image'
+import ThemeToggle from '@/components/ThemeToggle'
 import AboutSection from '@/components/AboutSection'
 import ProjectsSection from '@/components/ProjectsSection'
 import EnhancedProjectsSection from '@/components/EnhancedProjectsSection'
@@ -27,7 +27,6 @@ export default function Home() {
   const [mounted, setMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
-  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
@@ -121,14 +120,12 @@ export default function Home() {
 
           {/* Desktop right controls */}
           <div className="hidden md:flex items-center gap-2">
-            <motion.button
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-2 rounded-lg bg-gray-800/60 hover:bg-gray-700 transition-colors"
             >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-            </motion.button>
+              <ThemeToggle />
+            </motion.div>
             <motion.a
               href="/Arafati CV .pdf"
               download="Arafati CV.pdf"
@@ -143,12 +140,7 @@ export default function Home() {
 
           {/* Mobile: theme + hamburger */}
           <div className="flex md:hidden items-center gap-2">
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-2 rounded-lg bg-gray-800/60 hover:bg-gray-700 transition-colors"
-            >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
+            <ThemeToggle />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg bg-gray-800/60 hover:bg-gray-700 transition-colors"

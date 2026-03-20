@@ -6,12 +6,60 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Light mode (default) */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --border-color: #e2e8f0;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --glow-green: rgba(74, 222, 128, 0.2);
+  --glow-blue: rgba(96, 165, 250, 0.2);
+  --gradient-start: rgba(74, 222, 128, 0.1);
+  --gradient-end: rgba(96, 165, 250, 0.1);
+}
+
+/* Dark mode */
+.dark {
+  --bg-primary: #020610;
+  --bg-secondary: #0a0f1e;
+  --bg-tertiary: #111827;
+  --text-primary: #ffffff;
+  --text-secondary: #e2e8f0;
+  --text-tertiary: #94a3b8;
+  --border-color: #1e293b;
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --glow-green: rgba(74, 222, 128, 0.15);
+  --glow-blue: rgba(96, 165, 250, 0.15);
+  --gradient-start: rgba(74, 222, 128, 0.06);
+  --gradient-end: rgba(96, 165, 250, 0.05);
+}
+
 body {
-  background-color: #020610;
-  color: white;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light mode background */
+body.light {
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(74, 222, 128, 0.06), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(96, 165, 250, 0.05), transparent);
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(74, 222, 128, 0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(96, 165, 250, 0.06), transparent);
+}
+
+/* Dark mode background */
+body.dark {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, var(--gradient-start), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 80%, var(--gradient-end), transparent);
 }
 
 /* Custom scrollbar */
@@ -20,7 +68,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0f1e;
+  background: var(--bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -30,6 +78,10 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #4ade80;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0a0f1e;
 }
 
 /* Hide scrollbar for marquee */
