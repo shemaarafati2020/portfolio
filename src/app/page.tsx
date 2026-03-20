@@ -15,14 +15,12 @@ import AnimatedText from '@/components/AnimatedText'
 import MagneticButton from '@/components/MagneticButton'
 import GradientOrb from '@/components/GradientOrb'
 import SkillsShowcase from '@/components/SkillsShowcase'
-import EnhancedExperienceTimeline from '@/components/EnhancedExperienceTimeline'
 import Testimonials from '@/components/Testimonials'
 import CertificatesSection from '@/components/CertificatesSection'
 import GitHubProfileCard from '@/components/GitHubProfileCard'
 import LinkedInProfileCard from '@/components/LinkedInProfileCard'
 import CertificateAdmin from '@/components/CertificateAdmin'
 import TypingAnimation from '@/components/TypingAnimation'
-import TechIcon from '@/components/TechIcon'
 import AIAssistant from '@/components/AIAssistant'
 
 export default function Home() {
@@ -33,7 +31,7 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true)
-    
+
     // Check for admin mode
     const urlParams = new URLSearchParams(window.location.search)
     if (urlParams.get('admin') === 'true' || localStorage.getItem('admin-mode') === 'true') {
@@ -42,41 +40,6 @@ export default function Home() {
   }, [])
 
   if (!mounted) return null
-
-  const techIcons = {
-    frontend: [
-      { name: 'React', icon: '⚛️', color: 'from-cyan-400 to-blue-500' },
-      { name: 'Next.js', icon: '▲', color: 'from-gray-100 to-gray-300' },
-      { name: 'TypeScript', icon: '📘', color: 'from-blue-400 to-blue-600' },
-      { name: 'JavaScript', icon: '🟨', color: 'from-yellow-300 to-yellow-500' },
-      { name: 'HTML5', icon: '📱', color: 'from-orange-400 to-orange-600' },
-      { name: 'Tailwind CSS', icon: '🎨', color: 'from-cyan-400 to-teal-500' },
-    ],
-    backend: [
-      { name: 'Node.js', icon: '🟢', color: 'from-green-400 to-green-600' },
-      { name: 'Python', icon: '🐍', color: 'from-yellow-400 to-green-500' },
-      { name: 'MongoDB', icon: '🍃', color: 'from-green-500 to-green-700' },
-      { name: 'PostgreSQL', icon: '🐘', color: 'from-blue-700 to-blue-900' },
-      { name: 'Redis', icon: '🔴', color: 'from-red-500 to-red-700' },
-      { name: 'REST API', icon: '🔌', color: 'from-purple-400 to-purple-600' },
-    ],
-    devops: [
-      { name: 'Docker', icon: '🐳', color: 'from-blue-500 to-cyan-500' },
-      { name: 'Kubernetes', icon: '☸️', color: 'from-blue-600 to-blue-800' },
-      { name: 'AWS', icon: '☁️', color: 'from-orange-400 to-red-500' },
-      { name: 'Git', icon: '📦', color: 'from-orange-500 to-red-600' },
-      { name: 'GitHub', icon: '🐙', color: 'from-gray-700 to-gray-900' },
-      { name: 'GraphQL', icon: '◈', color: 'from-pink-400 to-pink-600' },
-    ]
-  }
-
-  const getCirclePosition = (index: number, total: number, radius: number) => {
-    const angle = (index * 360 / total) * (Math.PI / 180)
-    return {
-      x: Math.cos(angle) * radius,
-      y: Math.sin(angle) * radius
-    }
-  }
 
   const bioTexts = [
     "Building impactful & innovative solutions",
@@ -88,13 +51,13 @@ export default function Home() {
   ]
 
   const navItems = [
-    { label: 'Home',         id: 'home' },
-    { label: 'Skills',       id: 'skills' },
-    { label: 'Experience',   id: 'experience' },
-    { label: 'About',        id: 'about' },
-    { label: 'Projects',     id: 'projects' },
-    { label: 'Certs',        id: 'certificates' },
-    { label: 'Contact',      id: 'contact' },
+    { label: 'Home', id: 'home' },
+    { label: 'Skills', id: 'skills' },
+    { label: 'Experience', id: 'experience' },
+    { label: 'About', id: 'about' },
+    { label: 'Projects', id: 'projects' },
+    { label: 'Certs', id: 'certificates' },
+    { label: 'Contact', id: 'contact' },
   ]
 
   const scrollTo = (id: string) => {
@@ -104,24 +67,31 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen bg-[#020610] text-white relative overflow-hidden">
+      {/* Subtle grid mesh overlay */}
+      <div className="fixed inset-0 z-0 pointer-events-none"
+        style={{ backgroundImage: 'linear-gradient(rgba(74,222,128,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(74,222,128,0.025) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+
       {/* Advanced Background Effects */}
       <AnimatedBackground />
       <FloatingParticles />
-      
+
       {/* Gradient Orbs */}
       <GradientOrb className="top-20 left-20 w-96 h-96" delay={0} duration={25} />
       <GradientOrb className="bottom-20 right-20 w-96 h-96" delay={5} duration={30} />
       <GradientOrb className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px]" delay={10} duration={35} />
-      
+
       {/* Gradient Overlay */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-900/10 via-transparent to-purple-900/10"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-900/8 via-transparent to-blue-900/8" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020610]/60 via-transparent to-transparent" />
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-4 md:px-6 py-3 backdrop-blur-md bg-black/40 border-b border-white/5">
+      <nav className="fixed top-0 left-0 right-0 z-50 px-4 md:px-6 py-3"
+        style={{ background: 'rgba(2,6,16,0.75)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        {/* Gradient line at very top */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-green-400/40 to-transparent" />
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           {/* Logo */}
           <motion.button
@@ -160,7 +130,8 @@ export default function Home() {
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </motion.button>
             <motion.a
-              href="/resume.pdf"
+              href="/Arafati CV .pdf"
+              download="Arafati CV.pdf"
               target="_blank"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -207,7 +178,8 @@ export default function Home() {
                   </button>
                 ))}
                 <a
-                  href="/resume.pdf"
+                  href="/Arafati CV .pdf"
+                  download="Arafati CV.pdf"
                   target="_blank"
                   className="mt-2 flex items-center gap-2 px-4 py-2.5 text-sm border border-green-400 text-green-400 rounded-lg hover:bg-green-400 hover:text-black transition-all"
                 >
@@ -231,24 +203,72 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
-              className="relative w-36 h-36 md:w-48 md:h-48"
+              className="relative w-40 h-40 md:w-52 md:h-52"
             >
+              {/* Outer pulsating glow */}
+              <motion.div
+                className="absolute -inset-3 rounded-full bg-gradient-to-r from-green-400/20 via-blue-500/20 to-purple-500/20 blur-xl"
+                animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.85, 0.5] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              {/* Outer spinning ring - dashed */}
+              <motion.div
+                className="absolute -inset-2 rounded-full border-2 border-dashed border-green-400/30"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+              />
+              {/* Inner spinning ring */}
               <motion.div
                 className="absolute inset-0 rounded-full border-2 border-green-400"
                 style={{ borderTopColor: 'transparent', borderRightColor: 'transparent' }}
                 animate={{ rotate: 360 }}
                 transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
               />
-              <div className="absolute inset-1 rounded-full overflow-hidden border-2 border-green-400/40 shadow-xl shadow-green-400/20">
+              {/* Orbit dots */}
+              {[0, 60, 120, 180, 240, 300].map((deg, i) => (
+                <motion.div
+                  key={deg}
+                  className="absolute w-2 h-2 rounded-full"
+                  style={{
+                    background: i % 2 === 0 ? '#4ade80' : '#60a5fa',
+                    top: '50%',
+                    left: '50%',
+                    transformOrigin: '0 0',
+                  }}
+                  animate={{ rotate: [deg, deg + 360] }}
+                  transition={{ duration: 10 + i, repeat: Infinity, ease: 'linear' }}
+                // Orbit at radius ~55% of container
+                >
+                  <motion.div
+                    style={{ transform: `translate(-50%, -50%) rotate(${deg}deg) translateX(${72}px)` }}
+                    className="w-2 h-2 rounded-full bg-current shadow-lg shadow-green-400/50"
+                  />
+                </motion.div>
+              ))}
+              {/* Photo */}
+              <div className="absolute inset-2 rounded-full overflow-hidden border-2 border-green-400/50 shadow-2xl shadow-green-400/30">
                 <Image
-                  src="https://camo.githubusercontent.com/33fa1ecbfc674cb894fee42114ce8034fc32529090afc1ef7ef03b2d45c87271/68747470733a2f2f6d656469612e67697068792e636f6d2f6d656469612f6876524a434c467a6361737252346961377a2f67697068792e676966"
+                  src="/FYC_QnA_RoddyRicch.webp"
                   alt="HATEGEKIMANA SHEMA ARAFAT"
-                  width={200} height={200}
-                  className="w-full h-full object-cover"
+                  width={220} height={220}
+                  className="w-full h-full object-cover object-top"
                   priority
-                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face' }}
                 />
               </div>
+              {/* Open to Work badge */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.8, type: 'spring', stiffness: 200 }}
+                className="absolute -bottom-1 -right-1 flex items-center gap-1 px-2.5 py-1 bg-green-500 text-black text-[10px] font-black rounded-full border-2 border-black shadow-lg shadow-green-500/40 z-10"
+              >
+                <motion.span
+                  className="w-1.5 h-1.5 rounded-full bg-black"
+                  animate={{ scale: [1, 1.4, 1] }}
+                  transition={{ duration: 1.2, repeat: Infinity }}
+                />
+                OPEN TO WORK
+              </motion.div>
             </motion.div>
 
             {/* Name + role */}
@@ -260,6 +280,11 @@ export default function Home() {
               <p className="mt-2 text-base md:text-lg text-gray-400">
                 Software Engineer &amp; IT Student at{' '}
                 <span className="text-green-400 font-semibold">SKillArc Corporation</span>
+              </p>
+              <p className="mt-1 text-sm text-gray-500 flex items-center justify-center gap-1.5">
+                <span>📍</span> Rwanda, Kigali
+                <span className="mx-1 text-gray-700">•</span>
+                <span className="text-blue-400">💼 Available for projects</span>
               </p>
             </motion.div>
 
@@ -302,81 +327,34 @@ export default function Home() {
                 <Github size={16} /> GitHub
               </a>
             </motion.div>
+
+            {/* Hero stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="flex flex-wrap justify-center gap-6 pt-2"
+            >
+              {[
+                { value: '13+', label: 'Certifications', color: 'text-green-400' },
+                { value: '10+', label: 'Projects Built', color: 'text-blue-400' },
+                { value: '2+', label: 'Years Experience', color: 'text-purple-400' },
+                { value: '5+', label: 'Tech Stacks', color: 'text-orange-400' },
+              ].map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, scale: 0.7 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.75 + i * 0.08, type: 'spring', stiffness: 200 }}
+                  className="text-center"
+                >
+                  <div className={`text-2xl font-black ${stat.color}`}>{stat.value}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{stat.label}</div>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
 
-          {/* ── Tech stack grid ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-6"
-          >
-            {/* Frontend */}
-            <div className="bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-green-400/20 p-5">
-              <p className="text-xs font-bold text-green-400 tracking-widest uppercase mb-4 text-center">⚛ Frontend</p>
-              <div className="grid grid-cols-3 gap-3">
-                {techIcons.frontend.map((tech, i) => (
-                  <motion.div
-                    key={tech.name}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.7 + i * 0.07 }}
-                    whileHover={{ scale: 1.15, y: -3 }}
-                    className="flex flex-col items-center gap-1.5 cursor-pointer group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gray-800/80 border border-gray-700 group-hover:border-green-400/50 flex items-center justify-center transition-all shadow-sm">
-                      <TechIcon name={tech.name} icon={tech.icon} color={tech.color} size="sm" />
-                    </div>
-                    <span className="text-[10px] text-gray-400 group-hover:text-green-400 transition-colors text-center leading-tight">{tech.name}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Backend */}
-            <div className="bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-blue-400/20 p-5">
-              <p className="text-xs font-bold text-blue-400 tracking-widest uppercase mb-4 text-center">⚙ Backend</p>
-              <div className="grid grid-cols-3 gap-3">
-                {techIcons.backend.map((tech, i) => (
-                  <motion.div
-                    key={tech.name}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.8 + i * 0.07 }}
-                    whileHover={{ scale: 1.15, y: -3 }}
-                    className="flex flex-col items-center gap-1.5 cursor-pointer group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gray-800/80 border border-gray-700 group-hover:border-blue-400/50 flex items-center justify-center transition-all shadow-sm">
-                      <TechIcon name={tech.name} icon={tech.icon} color={tech.color} size="sm" />
-                    </div>
-                    <span className="text-[10px] text-gray-400 group-hover:text-blue-400 transition-colors text-center leading-tight">{tech.name}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* DevOps */}
-            <div className="bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-purple-400/20 p-5">
-              <p className="text-xs font-bold text-purple-400 tracking-widest uppercase mb-4 text-center">🚀 DevOps</p>
-              <div className="grid grid-cols-3 gap-3">
-                {techIcons.devops.map((tech, i) => (
-                  <motion.div
-                    key={tech.name}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.9 + i * 0.07 }}
-                    whileHover={{ scale: 1.15, y: -3 }}
-                    className="flex flex-col items-center gap-1.5 cursor-pointer group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-gray-800/80 border border-gray-700 group-hover:border-purple-400/50 flex items-center justify-center transition-all shadow-sm">
-                      <TechIcon name={tech.name} icon={tech.icon} color={tech.color} size="sm" />
-                    </div>
-                    <span className="text-[10px] text-gray-400 group-hover:text-purple-400 transition-colors text-center leading-tight">{tech.name}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
         </div>
 
         {/* Scroll indicator */}
@@ -394,9 +372,6 @@ export default function Home() {
 
       {/* Skills Showcase */}
       <SkillsShowcase />
-
-      {/* Experience Timeline */}
-      <EnhancedExperienceTimeline />
 
       {/* About Section */}
       <AboutSection />
@@ -442,7 +417,7 @@ export default function Home() {
 
       {/* Admin Interface */}
       {isAdmin && (
-        <CertificateAdmin certificates={[]} onSave={() => {}} />
+        <CertificateAdmin certificates={[]} onSave={() => { }} />
       )}
 
       {/* AI Assistant */}
@@ -456,16 +431,16 @@ export default function Home() {
               © 2024 HATEGEKIMANA SHEMA ARAFAT. All rights reserved.
             </p>
             <div className="flex gap-4 mt-4 md:mt-0">
-              <a href="https://www.linkedin.com/in/shema-arafati-h-5baa6b395/" target="_blank" rel="noopener noreferrer" 
-                 className="text-gray-400 hover:text-green-400 transition-colors">
+              <a href="https://www.linkedin.com/in/shema-arafati-h-5baa6b395/" target="_blank" rel="noopener noreferrer"
+                className="text-gray-400 hover:text-green-400 transition-colors">
                 <Linkedin size={20} />
               </a>
-              <a href="https://github.com/shemaarafati2020/shemaarafati2020" target="_blank" rel="noopener noreferrer" 
-                 className="text-gray-400 hover:text-green-400 transition-colors">
+              <a href="https://github.com/shemaarafati2020/shemaarafati2020" target="_blank" rel="noopener noreferrer"
+                className="text-gray-400 hover:text-green-400 transition-colors">
                 <Github size={20} />
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" 
-                 className="text-gray-400 hover:text-green-400 transition-colors">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
+                className="text-gray-400 hover:text-green-400 transition-colors">
                 <Twitter size={20} />
               </a>
             </div>
@@ -474,7 +449,7 @@ export default function Home() {
       </footer>
 
       {/* Social Sidebar */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.6 }}
@@ -492,9 +467,9 @@ export default function Home() {
               whileHover={{ scale: 1.2, rotate: 15 }}
               whileTap={{ scale: 0.9 }}
             >
-              <a 
+              <a
                 href={social.href}
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
                 className="group relative"
               >
@@ -502,7 +477,7 @@ export default function Home() {
                 <div className="relative w-12 h-12 bg-gray-900/80 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-700 hover:border-green-400 transition-all">
                   <social.icon size={24} className="text-gray-400 group-hover:text-white transition-colors" />
                 </div>
-                <motion.div 
+                <motion.div
                   className="absolute right-full mr-3 top-1/2 transform -translate-y-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
                   initial={{ x: 10 }}
                   whileHover={{ x: 0 }}
