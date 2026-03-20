@@ -2,13 +2,22 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Send, Bot, User, Mail, Sparkles } from 'lucide-react'
+import { X, Send, Bot, User, Mail, Sparkles, Mic, MicOff, Trash2, Lightbulb } from 'lucide-react'
 
 interface Message {
   id: string
   text: string
   sender: 'user' | 'ai'
   timestamp: Date
+  sentiment?: 'positive' | 'neutral' | 'negative'
+  suggestedActions?: string[]
+}
+
+interface ConversationContext {
+  lastTopic: string
+  questionsAsked: string[]
+  userIntent: 'info' | 'contact' | 'hire' | 'casual' | 'unknown'
+  sentimentScore: number
 }
 
 interface ContactInfo {
@@ -45,7 +54,7 @@ const KB = {
   availability: 'Open to opportunities — full-time, freelance, and collaboration',
 }
 
-function getAIResponse(input: string, setShowContact: (v: boolean) => void): string {
+function getAIResponse(input: string, setShowContactForm: (v: boolean) => void): string {
   const q = input.toLowerCase()
 
   if (/^(hi|hello|hey|good\s*(morning|afternoon|evening)|howdy|sup)\b/.test(q))
@@ -91,23 +100,27 @@ function getAIResponse(input: string, setShowContact: (v: boolean) => void): str
     return `Shema is ${KB.availability}!\n\n📧 ${KB.email}\n💼 linkedin.com/in/shema-arafati-h-5baa6b395/\n\nOr type "contact form" to message him right here.`
 
   if (/contact|email|reach|messag|get in touch|send/.test(q)) {
-    setTimeout(() => setShowContact(true), 300)
+    setTimeout(() => setShowContactForm(true), 300)
     return `Opening the contact form now! 📬 Fill in your details to send a message directly to Shema's inbox.`
   }
 
   if (/locat|where|country|city|based/.test(q))
-    return `Shema is based globally 🌍 and works fully remote, open to international opportunities.`
+    return `Shema is based globally 🌍 and works fully remote, open to international opportunities. He can collaborate with teams across any timezone.`
 
-  if (/linkedin|github|social|profile|link/.test(q))
-    return `Find Shema on:\n\n💼 linkedin.com/in/shema-arafati-h-5baa6b395/\n🐙 github.com/shemaarafati2020/shemaarafati2020`
+  if (/thank|thanks|appreciate|helpful|goodbye|bye/.test(q))
+    return `You're very welcome! 😊 It was my pleasure to help. Don't hesitate to ask if you need anything else. Have a great day!`
 
-  if (/philosoph|quote|motto|belief|mantra|principle/.test(q))
-    return `Shema's philosophy: ${KB.philosophy}\n\nHe also believes: "Programming isn't about what you know; it's about what you can figure out." — Chris Pine`
+  if (/time|when|available|schedule/.test(q))
+    return `Shema is typically available 9AM-6PM CAT (Central Africa Time). For urgent matters, email him directly at ${KB.email}.`
 
-  if (/help|what can|what do|capabilit|option/.test(q))
-    return `I can help with:\n\n🧑 About Shema\n💻 Tech Stack\n💼 Experience & Work\n🎓 Certifications\n🚀 Projects\n📬 Contact (say "contact form")\n\nJust ask!`
+  if (/rate|price|cost|charge|fee/.test(q))
+    return `Rates vary based on project scope and duration. Shema offers competitive pricing for freelance work. Please use the contact form to discuss your specific needs.`
 
-  return `I can answer questions about Shema's skills, experience, projects, or certifications. Say "contact form" to message him directly, or ask "what can you do?" for a full list.`
+  if (/portfolio|github|linkedin|website|link/.test(q))
+    return `Find Shema online:\n\n💼 LinkedIn: linkedin.com/in/shema-arafati-h-5baa6b395/\n🐙 GitHub: github.com/shemaarafati2020\n📧 Email: ${KB.email}\n🌐 Portfolio: You're already here!`
+
+  // Default fallback with suggestions
+  return `I'm here to help! You can ask me about:\n\n• Skills & technologies 🛠️\n• Work experience 💼\n• Projects & portfolio 🚀\n• Certifications 📜\n• Contact information 📧\n\nOr just say "contact form" to message Shema directly!`
 }
 
 const QUICK_REPLIES = ['What are his skills?', 'Current role?', 'Certifications?', 'Contact form']
@@ -115,31 +128,130 @@ const QUICK_REPLIES = ['What are his skills?', 'Current role?', 'Certifications?
 export default function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
-  const [inputText, setInputText] = useState('')
+  const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [showContactForm, setShowContactForm] = useState(false)
   const [contactInfo, setContactInfo] = useState<ContactInfo>({ name: '', email: '', message: '' })
+  const [isListening, setIsListening] = useState(false)
   const [contactStatus, setContactStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [showContactForm, setShowContactForm] = useState(false)
+  const [context, setContext] = useState<ConversationContext>({
+    lastTopic: '',
+    questionsAsked: [],
+    userIntent: 'unknown',
+    sentimentScore: 0
+  })
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
+  // Load conversation history from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('ai-chat-history')
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      setMessages(parsed.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })))
+    }
+  }, [])
+
+  // Save conversation to localStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('ai-chat-history', JSON.stringify(messages))
+    }
+  }, [messages])
+
+  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isTyping, showContactForm])
+  }, [messages])
 
-  const pushMessage = (text: string, sender: 'user' | 'ai') => {
-    setMessages(prev => [...prev, { id: Date.now().toString(), text, sender, timestamp: new Date() }])
+  // Simulated voice input
+  const startListening = () => {
+    setIsListening(true)
+    setTimeout(() => {
+      const simulatedInputs = [
+        'Tell me about your experience',
+        'What technologies do you use?',
+        'How can I contact you?',
+        'Are you available for hire?'
+      ]
+      setInputValue(simulatedInputs[Math.floor(Math.random() * simulatedInputs.length)])
+      setIsListening(false)
+      inputRef.current?.focus()
+    }, 2000)
+  }
+
+  const analyzeSentiment = (text: string): 'positive' | 'neutral' | 'negative' => {
+    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'love', 'fantastic', 'impressive', 'awesome', 'brilliant']
+    const negativeWords = ['bad', 'poor', 'terrible', 'hate', 'awful', 'disappointing', 'worst']
+    const lower = text.toLowerCase()
+    if (positiveWords.some(w => lower.includes(w))) return 'positive'
+    if (negativeWords.some(w => lower.includes(w))) return 'negative'
+    return 'neutral'
+  }
+
+  const detectIntent = (text: string): ConversationContext['userIntent'] => {
+    if (/hire|job|opportun|work|employ|career/.test(text)) return 'hire'
+    if (/contact|email|reach|messag|get in touch/.test(text)) return 'contact'
+    if (/skill|tech|experience|project|about/.test(text)) return 'info'
+    if (/^(hi|hello|hey|howdy|sup|yo)/.test(text)) return 'casual'
+    return 'unknown'
+  }
+
+  const generateFollowUpQuestions = (topic: string): string[] => {
+    const followUps: Record<string, string[]> = {
+      skills: ['Which framework do you prefer?', 'How do you stay updated?', 'What\'s your favorite project?'],
+      experience: ['What was your biggest challenge?', 'Which achievement are you proud of?', 'What did you learn?'],
+      contact: ['What\'s the best time to reach?', 'Do you do freelance work?', 'Can we schedule a call?'],
+      default: ['Anything else you\'d like to know?', 'How can I help further?', 'Want to see my portfolio?']
+    }
+    return followUps[topic] || followUps.default
   }
 
   const sendMessage = (text?: string) => {
-    const msg = (text ?? inputText).trim()
+    const msg = (text ?? inputValue).trim()
     if (!msg) return
-    pushMessage(msg, 'user')
-    setInputText('')
+    
+    const sentiment = analyzeSentiment(msg)
+    const intent = detectIntent(msg)
+    
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text: msg,
+      sender: 'user',
+      timestamp: new Date(),
+      sentiment
+    }
+    
+    setMessages(prev => [...prev, userMessage])
+    if (!text) setInputValue('')
     setIsTyping(true)
+    
+    // Update context
+    setContext(prev => ({
+      lastTopic: intent === 'info' ? 'skills' : prev.lastTopic,
+      questionsAsked: [...prev.questionsAsked, msg],
+      userIntent: intent,
+      sentimentScore: sentiment === 'positive' ? 1 : sentiment === 'negative' ? -1 : 0
+    }))
+    
+    // Typing animation with realistic delay
+    const typingDuration = 800 + Math.random() * 1200
+    
     setTimeout(() => {
-      pushMessage(getAIResponse(msg, setShowContactForm), 'ai')
+      const responseText = getAIResponse(msg, setShowContactForm)
+      const followUps = generateFollowUpQuestions(context.lastTopic)
+      
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: responseText,
+        sender: 'ai',
+        timestamp: new Date(),
+        suggestedActions: followUps.slice(0, 3)
+      }
+      
+      setMessages(prev => [...prev, aiResponse])
       setIsTyping(false)
-    }, 900)
+    }, typingDuration)
   }
 
   const sendContactMessage = async () => {
@@ -153,7 +265,13 @@ export default function AIAssistant() {
       })
       if (!res.ok) throw new Error()
       setContactStatus('success')
-      pushMessage(`✅ Message sent! Shema will reply to you at ${contactInfo.email}. Thanks for reaching out!`, 'ai')
+      const successMsg: Message = {
+        id: (Date.now() + 2).toString(),
+        text: `✅ Message sent! Shema will reply to you at ${contactInfo.email}. Thanks for reaching out!`,
+        sender: 'ai',
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, successMsg])
       setContactInfo({ name: '', email: '', message: '' })
       setTimeout(() => { setShowContactForm(false); setContactStatus('idle') }, 2000)
     } catch {
@@ -204,6 +322,17 @@ export default function AIAssistant() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {/* Clear chat button */}
+              {messages.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  onClick={() => { setMessages([]); localStorage.removeItem('ai-chat-history') }}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs text-gray-400 mx-auto transition-colors"
+                >
+                  <Trash2 size={12} /> Clear chat
+                </motion.button>
+              )}
               {messages.length === 0 && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8 px-4">
                   <div className="w-14 h-14 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -229,7 +358,27 @@ export default function AIAssistant() {
                       : 'bg-gray-800 text-gray-200 rounded-bl-sm'
                   }`}>
                     {msg.text}
+                    {/* Sentiment indicator for user messages */}
+                    {msg.sender === 'user' && msg.sentiment && (
+                      <span className="ml-2 text-xs opacity-60">
+                        {msg.sentiment === 'positive' ? '😊' : msg.sentiment === 'negative' ? '😟' : '😐'}
+                      </span>
+                    )}
                   </div>
+                  {/* Suggested actions after AI response */}
+                  {msg.sender === 'ai' && msg.suggestedActions && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {msg.suggestedActions.map((action, i) => (
+                        <button
+                          key={i}
+                          onClick={() => sendMessage(action)}
+                          className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-full text-xs text-gray-300 transition-colors flex items-center gap-1"
+                        >
+                          <Lightbulb size={10} /> {action}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   {msg.sender === 'user' && (
                     <div className="w-7 h-7 bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                       <User size={14} className="text-gray-400" />
@@ -288,35 +437,71 @@ export default function AIAssistant() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick replies */}
+            {/* Quick Replies */}
             {messages.length === 0 && (
-              <div className="px-4 pb-2 flex flex-wrap gap-1.5">
-                {QUICK_REPLIES.map(r => (
-                  <button key={r} onClick={() => sendMessage(r)}
-                    className="px-3 py-1.5 text-xs bg-gray-800 text-gray-300 rounded-full border border-gray-700 hover:border-green-400 hover:text-green-400 transition-colors">
-                    {r}
-                  </button>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="flex flex-wrap gap-2 mt-4"
+              >
+                {QUICK_REPLIES.map((reply, i) => (
+                  <motion.button
+                    key={reply}
+                    onClick={() => sendMessage(reply)}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 + i * 0.1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-full text-xs text-gray-300 transition-colors"
+                  >
+                    {reply}
+                  </motion.button>
                 ))}
-              </div>
+              </motion.div>
             )}
 
             {/* Input */}
-            {!showContactForm && (
-              <div className="px-4 py-3 border-t border-gray-800">
-                <div className="flex gap-2 items-end">
-                  <input type="text" placeholder="Ask about Shema..."
-                    value={inputText}
-                    onChange={e => setInputText(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
-                    className="flex-1 px-4 py-2.5 text-sm bg-gray-800 text-white rounded-xl border border-gray-700 focus:border-green-400 outline-none placeholder-gray-500" />
-                  <motion.button onClick={() => sendMessage()} disabled={!inputText.trim()}
-                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0">
-                    <Send size={16} />
-                  </motion.button>
-                </div>
+            <div className="p-4 border-t border-gray-800">
+              <div className="flex gap-2">
+                <button
+                  onClick={startListening}
+                  disabled={isListening || isTyping}
+                  className={`p-2.5 rounded-full transition-all ${
+                    isListening
+                      ? 'bg-red-600 text-white animate-pulse'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+                </button>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  onKeyPress={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                  placeholder={isListening ? "Listening..." : "Type your message..."}
+                  className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-full text-sm text-white placeholder-gray-500 focus:outline-none focus:border-green-400 transition-colors"
+                  disabled={isListening}
+                />
+                <button
+                  onClick={() => sendMessage()}
+                  disabled={!inputValue.trim() || isTyping || isListening}
+                  className="p-2.5 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-full hover:shadow-lg hover:shadow-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <Send size={18} />
+                </button>
               </div>
-            )}
+              {/* Context indicator */}
+              {context.userIntent !== 'unknown' && (
+                <div className="mt-2 text-xs text-gray-500 text-center">
+                  Detected intent: <span className="text-green-400">{context.userIntent}</span>
+                  {context.questionsAsked.length > 0 && ` • ${context.questionsAsked.length} question${context.questionsAsked.length > 1 ? 's' : ''} asked`}
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -428,7 +428,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <p className="text-gray-400 text-sm">
-              © 2024 HATEGEKIMANA SHEMA ARAFAT. All rights reserved.
+              © {new Date().getFullYear()} HATEGEKIMANA SHEMA ARAFAT. All rights reserved.
             </p>
             <div className="flex gap-4 mt-4 md:mt-0">
               <a href="https://www.linkedin.com/in/shema-arafati-h-5baa6b395/" target="_blank" rel="noopener noreferrer"
